@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f4f0;
+      --card: #ffffff;
+      --text: #1a1a18;
+      --muted: #6b6b65;
+      --border: #e2e1dc;
+      --accent: #1a1a18;
+      --accent-hover: #2d2d2a;
+      --link: #2563eb;
+      --input-bg: #fafaf8;
+      --shadow: 0 8px 40px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-btn: 12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Modal overlay (hidden by default when embedded) ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      animation: fadeIn 0.2s ease forwards;
+    }
+
+    @keyframes fadeIn  { to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(18px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* ── Card ── */
+    .modal-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 40px 40px 36px;
+      width: 100%;
+      max-width: 420px;
+      animation: slideUp 0.28s cubic-bezier(.22,.68,0,1.2) 0.05s both;
+    }
+
+    /* ── Logo placeholder ── */
+    .logo {
+      width: 44px;
+      height: 44px;
+      background: #f0ede6;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+    .logo svg { width: 20px; height: 20px; color: #9b9a94; }
+
+    /* ── Heading ── */
+    .modal-card h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.1;
+      letter-spacing: -0.3px;
+    }
+    .modal-card .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 5px;
+      font-weight: 400;
+    }
+
+    /* ── Form ── */
+    .form { margin-top: 28px; display: flex; flex-direction: column; gap: 18px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+
+    .forgot {
+      font-size: 13px;
+      color: var(--link);
+      text-decoration: none;
+      font-weight: 400;
+      transition: opacity 0.15s;
+    }
+    .forgot:hover { opacity: 0.75; }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input::placeholder { color: #b0afa9; }
+    input:focus {
+      border-color: #a0a09a;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+    }
+
+    /* ── Primary button ── */
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover  { background: var(--accent-hover); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Social buttons ── */
+    .social-row { display: flex; gap: 12px; }
+
+    .btn-social {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .btn-social:hover  { background: var(--bg); border-color: #ccccc6; }
+    .btn-social:active { transform: scale(0.97); }
+    .btn-social svg    { flex-shrink: 0; }
+
+    /* ── Footer ── */
+    .modal-footer {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .modal-footer a {
+      color: var(--link);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .modal-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!--
+  USAGE AS A POP-UP MODAL:
+  Toggle .modal-overlay visibility via JS:
+    document.getElementById('authModal').style.display = 'flex';  // open
+    document.getElementById('authModal').style.display = 'none';  // close
+  Or swap opacity/pointer-events if you prefer CSS transitions.
+-->
+
+<div class="modal-overlay" id="authModal">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+    <!-- Logo -->
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="14" height="14" rx="3"/>
+      </svg>
+    </div>
+
+    <!-- Heading -->
+    <h1 id="modal-title">Sign in</h1>
+    <p class="subtitle">Enter your credentials to continue</p>
+
+    <!-- Form -->
+    <div class="form">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+
+      <div class="field">
+        <div class="field-header">
+          <label for="password">Password</label>
+          <a href="#" class="forgot">Forgot password?</a>
+        </div>
+        <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+
+      <button class="btn-primary" type="submit">Sign in</button>
+
+      <div class="divider">or continue with</div>
+
+      <div class="social-row">
+        <!-- Google -->
+        <button class="btn-social" type="button" aria-label="Continue with Google">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.64 9.2045c0-.638-.0573-1.252-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087C16.6582 14.252 17.64 11.9455 17.64 9.2045z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.4673-.8059 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.859-3.0477.859-2.3441 0-4.3282-1.5832-5.036-3.7105H.9574v2.3318C2.4382 15.9832 5.4818 18 9 18z" fill="#34A853"/>
+            <path d="M3.964 10.71c-.18-.54-.2827-1.1168-.2827-1.71s.1027-1.17.2827-1.71V4.9582H.9573C.3477 6.173 0 7.5482 0 9s.3477 2.827.9573 4.0418L3.964 10.71z" fill="#FBBC05"/>
+            <path d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.346l2.5814-2.5814C13.4632.8918 11.4259 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.964 7.29C4.6718 5.1627 6.6559 3.5795 9 3.5795z" fill="#EA4335"/>
+          </svg>
+          Google
+        </button>
+
+        <!-- GitHub -->
+        <button class="btn-social" type="button" aria-label="Continue with GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+          </svg>
+          GitHub
+        </button>
+      </div>
+
+      <p class="modal-footer">No account? <a href="#">Sign up</a></p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
