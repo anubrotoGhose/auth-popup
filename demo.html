@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auth Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f4f0;
+      --card: #ffffff;
+      --text: #1a1a18;
+      --muted: #6b6b65;
+      --border: #e2e1dc;
+      --accent: #1a1a18;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .demo-card {
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+      padding: 48px 48px 44px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover  { background: #2d2d2a; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .btn-secondary:hover  { background: var(--bg); border-color: #ccccc6; }
+    .btn-secondary:active { transform: scale(0.98); }
+
+    .status {
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 20px;
+      transition: opacity 0.2s;
+    }
+
+    .status.success { color: #16a34a; }
+    .status.waiting { color: #ca8a04; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row span:last-child { color: var(--text); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<div class="demo-card">
+  <div class="badge">Auth Demo</div>
+  <h1>Test the sign-in popup</h1>
+  <p>Opens your hosted popup via <code>window.open</code> and listens for a <code>postMessage</code> back.</p>
+
+  <div class="btn-group">
+    <button class="btn-primary" onclick="openPopup()">Open sign-in popup</button>
+    <button class="btn-secondary" onclick="openRedirect()">Open as redirect (mobile)</button>
+  </div>
+
+  <p class="status" id="status"></p>
+
+  <div class="divider"></div>
+
+  <div>
+    <div class="info-row">
+      <span>Popup URL</span>
+      <span>anubrotoghose.github.io</span>
+    </div>
+    <div class="info-row">
+      <span>Flow</span>
+      <span id="flow-label">window.open</span>
+    </div>
+    <div class="info-row">
+      <span>Last event</span>
+      <span id="last-event">—</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const POPUP_URL = 'https://anubrotoghose.github.io/auth-popup/';
+
+  function setStatus(msg, type = '') {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status ' + type;
+  }
+
+  function openPopup() {
+    document.getElementById('flow-label').textContent = 'window.open';
+    setStatus('Popup opened — waiting for response…', 'waiting');
+
+    const width = 480, height = 620;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top  = window.screenY + (window.outerHeight - height) / 2;
+
+    const popup = window.open(
+      POPUP_URL,
+      'auth_popup',
+      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=no`
+    );
+
+    if (!popup) {
+      setStatus('Popup was blocked. Allow popups for this page and try again.', '');
+      return;
+    }
+
+    // Poll for closed (user closed manually)
+    const pollClosed = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(pollClosed);
+        const cur = document.getElementById('status').textContent;
+        if (cur.includes('waiting')) setStatus('Popup was closed.', '');
+      }
+    }, 400);
+
+    // Listen for postMessage from the popup
+    function onMessage(e) {
+      if (e.origin !== 'https://anubrotoghose.github.io') return;
+      clearInterval(pollClosed);
+      window.removeEventListener('message', onMessage);
+
+      document.getElementById('last-event').textContent = JSON.stringify(e.data);
+
+      if (e.data?.type === 'AUTH_SUCCESS') {
+        popup.close();
+        setStatus('Signed in as ' + (e.data.user?.email ?? 'user') + ' ✓', 'success');
+      } else if (e.data?.type === 'AUTH_ERROR') {
+        popup.close();
+        setStatus('Auth error: ' + e.data.error, '');
+      }
+    }
+
+    window.addEventListener('message', onMessage);
+  }
+
+  function openRedirect() {
+    document.getElementById('flow-label').textContent = 'redirect';
+    setStatus('Redirecting…', 'waiting');
+    window.location.href = POPUP_URL;
+  }
+</script>
+
+</body>
+</html>
